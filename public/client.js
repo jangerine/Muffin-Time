@@ -24,6 +24,10 @@ function joinGame() {
   document.getElementById('display-room').innerText = roomId;
 }
 
+function startGame() {
+  socket.emit('startGame', { roomId: currentRoomId });
+}
+
 function drawCard() {
   socket.emit('drawCard', { roomId: currentRoomId });
 }
@@ -34,12 +38,22 @@ function shoutMuffinTime() {
 
 // 서버로부터 방 상태 업데이트 수신
 socket.on('updateRoom', (room) => {
+  // 게임 시작 버튼 상태 업데이트
+  const startBtn = document.getElementById('start-btn');
+  if (room.started) {
+    startBtn.innerText = '게임 진행 중...';
+    startBtn.disabled = true;
+  } else {
+    startBtn.innerText = '▶️ 게임 시작';
+    startBtn.disabled = false;
+  }
+
   // 플레이어 리스트 갱신
   const playerList = document.getElementById('player-list');
   playerList.innerHTML = '';
   
   room.players.forEach((p, index) => {
-    const isMyTurn = index === room.turnIndex;
+    const isMyTurn = room.started && index === room.turnIndex;
     const li = document.createElement('li');
     li.innerText = `${p.name} (카드 ${p.hand.length}장) ${p.isMuffinTime ? '🧁[머핀 타임!]' : ''} ${isMyTurn ? '👈 현재 턴' : ''}`;
     playerList.appendChild(li);

@@ -1,13 +1,13 @@
 {
-  "name": "muffin-time-game",
+  "name": "muffin-time-multiplayer",
   "version": "1.0.0",
-  "description": "실시간 머핀 타임 스타일 카드 게임",
+  "description": "Muffin Time Web Multiplayer Game",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
     "express": "^4.18.2",
-    "socket.io": "^4.6.1"
+    "socket.io": "^4.7.2"
   }
 }

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Muffin Time Web Edition</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #faf0e6; text-align: center; padding: 20px; }
+    #game-board { display: flex; justify-content: space-around; margin-top: 20px; }
+    .card-container { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 20px; }
+    .card { background: #ffe4e1; border: 2px solid #ff69b4; border-radius: 8px; padding: 15px; width: 140px; cursor: pointer; }
+    .card:hover { background: #ffc0cb; }
+    .btn-muffin { background-color: #ff1493; color: white; border: none; padding: 15px 30px; font-size: 18px; font-weight: bold; border-radius: 25px; cursor: pointer; margin-top: 20px; }
+    .btn-muffin:hover { background-color: #c71585; }
+    .active-turn { font-weight: bold; color: green; }
+  </style>
+</head>
+<body>
+
+  <h1>🧁 머핀 타임! (Muffin Time)</h1>
+  <div id="login">
+    <input type="text" id="username" placeholder="닉네임 입력">
+    <button onclick="join()">입장하기</button>
+  </div>
+
+  <div id="game" style="display:none;">
+    <h2 id="turn-info">게임 준비 중...</h2>
+    
+    <h3>플레이어 목록</h3>
+    <div id="player-list"></div>
+
+    <button class="btn-muffin" onclick="callMuffin()">🧁 머핀 타임! 🧁</button>
+    <br><br>
+    <button onclick="drawCard()">카드 1장 뽑기 (차례 소모)</button>
+
+    <h3>내가 가진 카드</h3>
+    <div id="hand" class="card-container"></div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    let myHandData = [];
+
+    function join() {
+      const name = document.getElementById("username").value;
+      if (!name) return alert("닉네임을 입력하세요!");
+      socket.emit("joinGame", name);
+      document.getElementById("login").style.display = "none";
+      document.getElementById("game").style.display = "block";
+    }
+
+    socket.on("gameState", (state) => {
+      const listDiv = document.getElementById("player-list");
+      listDiv.innerHTML = "";
+      state.players.forEach(p => {
+        const pElem = document.createElement("p");
+        pElem.innerText = `${p.name} - 카드 ${p.cardCount}장 ${p.isTurn ? ' (현재 차례!)' : ''}`;
+        if (p.isTurn) pElem.className = "active-turn";
+        listDiv.appendChild(pElem);
+      });
+    });
+
+    socket.on("myHand", (hand) => {
+      myHandData = hand;
+      const handDiv = document.getElementById("hand");
+      handDiv.innerHTML = "";
+      hand.forEach((card, index) => {
+        const cardElem = document.createElement("div");
+        cardElem.className = "card";
+        cardElem.innerHTML = `<strong>${card.name}</strong><p>${card.text}</p>`;
+        cardElem.onclick = () => playCard(index);
+        handDiv.appendChild(cardElem);
+      });
+    });
+
+    function drawCard() {
+      socket.emit("drawCard");
+    }
+
+    function playCard(index) {
+      socket.emit("playCard", index);
+    }
+
+    function callMuffin() {
+      socket.emit("callMuffinTime");
+    }
+
+    socket.on("message", (msg) => alert(msg));
+    socket.on("gameOver", (msg) => alert(msg));
+  </script>
+</body>
+</html>

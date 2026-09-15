@@ -11,7 +11,9 @@
     .trap { background: #f8d7da; }
     .action { background: #d1ecf1; }
     #log-box { height: 120px; border: 1px solid #ccc; overflow-y: scroll; padding: 5px; margin-top: 15px; background: #eee; }
-    button { padding: 10px 15px; font-size: 16px; cursor: pointer; margin-right: 5px; }
+    button { padding: 10px 15px; font-size: 16px; cursor: pointer; margin-right: 5px; margin-bottom: 5px; }
+    .start-btn { background-color: #28a745; color: white; border: none; border-radius: 5px; }
+    .start-btn:disabled { background-color: #6c757d; cursor: not-allowed; }
   </style>
 </head>
 <body>
@@ -28,6 +30,11 @@
     <!-- 게임 영역 -->
     <div id="game-sec" style="display:none;">
       <h3>현재 방: <span id="display-room"></span></h3>
+      
+      <div>
+        <button id="start-btn" class="start-btn" onclick="startGame()">▶️ 게임 시작</button>
+      </div>
+
       <h4>접속 플레이어:</h4>
       <ul id="player-list"></ul>
 
